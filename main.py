@@ -1,20 +1,12 @@
-
 from telegram import Update
 from telegram.ext import Application, MessageHandler, filters, CommandHandler, CallbackContext
 import os
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from pytz import utc
+import pytz  # اضافه کردن pytz برای تنظیم منطقه زمانی
 
-scheduler = AsyncIOScheduler(timezone=utc)
+# استفاده از منطقه زمانی مناسب
+scheduler = AsyncIOScheduler(timezone=pytz.timezone('Asia/Tehran'))
 scheduler.start()
-
-
-# scheduler = AsyncIOScheduler(timezone=pytz.timezone('Asia/Tehran'))
-
-
-# استفاده از منطقه زمانی معتبر از pytz
-
-# scheduler.start()
 
 TOKEN = "8007267423:AAEQR9MJDbaEeNWPBRDON7hKKAbdvUDRyDM"
 
