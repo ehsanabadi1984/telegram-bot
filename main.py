@@ -63,7 +63,7 @@ async def main():
 
     # افزودن handler ها
     application.add_handler(CommandHandler("start", start))
-    application.add_handler(MessageHandler(filters.Document | filters._Photo | filters._Video | filters._Audio, handle_file))
+    application.add_handler(MessageHandler(filters.Document | filters.Photo | filters.Video | filters.Audio, handle_file))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
 
     # شروع کردن ربات
