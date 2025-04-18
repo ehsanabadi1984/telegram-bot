@@ -54,23 +54,18 @@ async def handle_text(update: Update, context: CallbackContext):
 
 # راه‌اندازی ربات
 async def main():
-    # ایجاد اپلیکیشن و ربات
     application = Application.builder().token(TOKEN).build()
 
-    # افزودن handler ها
     application.add_handler(CommandHandler("start", start))
     application.add_handler(MessageHandler(filters.ATTACHMENT, handle_file))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
 
-    # شروع کردن ربات
-    await application.run_polling()
+    await application.bot.set_webhook("https://telegram-bot-production-41ba.up.railway.app/webhook")
 
-if __name__ == '__main__':
-    import asyncio
-    import nest_asyncio
-    nest_asyncio.apply()
+    await application.run_webhook(
+        listen="0.0.0.0",
+        port=int(os.environ.get("PORT", 8080)),
+        webhook_path="/webhook",
+        allowed_updates=Update.ALL_TYPES,
+    )
 
-    try:
-        asyncio.run(main())
-    except RuntimeError as e:
-        print("خطای event loop:", e)
