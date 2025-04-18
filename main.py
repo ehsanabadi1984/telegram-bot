@@ -3,7 +3,7 @@ from telegram.ext import Application, MessageHandler, filters, CommandHandler, C
 import os
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import pytz  # اضافه کردن pytz برای تنظیم منطقه زمانی
-
+import mimetypes
 # استفاده از منطقه زمانی مناسب
 scheduler = AsyncIOScheduler(timezone=pytz.timezone('Asia/Tehran'))
 scheduler.start()
@@ -16,47 +16,38 @@ async def start(update: Update, context: CallbackContext):
 
 # ذخیره فایل و درخواست نام جدید
 async def handle_file(update: Update, context: CallbackContext):
-    message = update.message
-    file = None
-    extension = 'dat'
-
-    if message.document:
-        file = message.document
-        extension = file.mime_type.split('/')[-1] if file.mime_type else 'dat'
-    elif message.video:
-        file = message.video
-        extension = 'mp4'
-    elif message.audio:
-        file = message.audio
-        extension = 'mp3'
-    elif message.photo:
-        file = message.photo[-1]  # بهترین کیفیت عکس
-        extension = 'jpg'
+    file = update.message.document or update.message.video or update.message.audio or (update.message.photo[-1] if update.message.photo else None)
 
     if not file:
-        await update.message.reply_text("فایلی دریافت نشد یا نوع فایل پشتیبانی نمی‌شود.")
+        await update.message.reply_text("فایل نامعتبره.")
         return
 
-    context.user_data['file_id'] = file.file_id
+    file_id = file.file_id
+    context.user_data['file_id'] = file_id
+
+    # گرفتن مسیر فایل و استخراج فرمت واقعی
+    tg_file = await context.bot.get_file(file_id)
+    file_path = tg_file.file_path
+    extension = os.path.splitext(file_path)[-1]  # مثل .jpg یا .mp4
+
+    if not extension:
+        # اگر فایل فرمت نداشت
+        extension = mimetypes.guess_extension(getattr(file, 'mime_type', '') or '') or '.dat'
+
     context.user_data['extension'] = extension
-
     await update.message.reply_text("فایل دریافت شد ✅ لطفاً اسم جدید فایل رو بفرست (بدون فرمت).")
-
-
-# گرفتن نام جدید و ارسال فایل
 async def handle_text(update: Update, context: CallbackContext):
     if 'file_id' in context.user_data:
         file_id = context.user_data['file_id']
-        file = await context.bot.get_file(file_id)
+        extension = context.user_data.get('extension', '.dat')
 
+        file = await context.bot.get_file(file_id)
         new_name = update.message.text
-        extension = context.user_data.get('file_type', '').split('/')[-1] or 'dat'
-        full_name = f"{new_name}.{extension}"
+        full_name = f"{new_name}{extension}"
 
         await file.download_to_drive(full_name)
         await update.message.reply_document(open(full_name, 'rb'))
-        os.remove(full_name)  # پاک کردن فایل موقت
-
+        os.remove(full_name)
         context.user_data.clear()
     else:
         await update.message.reply_text("اول باید یه فایل بفرستی.")
