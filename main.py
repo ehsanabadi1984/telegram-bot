@@ -2,8 +2,12 @@
 from telegram import Update
 from telegram.ext import Application, MessageHandler, filters, CommandHandler, CallbackContext
 import os
-# from apscheduler.schedulers.asyncio import AsyncIOScheduler
-# import pytz
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from pytz import utc
+
+scheduler = AsyncIOScheduler(timezone=utc)
+scheduler.start()
+
 
 # scheduler = AsyncIOScheduler(timezone=pytz.timezone('Asia/Tehran'))
 
