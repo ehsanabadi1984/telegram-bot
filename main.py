@@ -9,6 +9,8 @@ scheduler = AsyncIOScheduler(timezone=pytz.timezone('Asia/Tehran'))
 scheduler.start()
 
 TOKEN = "8007267423:AAEQR9MJDbaEeNWPBRDON7hKKAbdvUDRyDM"
+WEBHOOK_PATH = "/webhook"
+WEBHOOK_URL = f"https://telegram-bot-production-41ba.up.railway.app{WEBHOOK_PATH}"
 
 # مرحله اول: کاربر با /start شروع می‌کنه
 async def start(update: Update, context: CallbackContext):
