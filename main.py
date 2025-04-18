@@ -16,12 +16,27 @@ async def start(update: Update, context: CallbackContext):
 
 # ذخیره فایل و درخواست نام جدید
 async def handle_file(update: Update, context: CallbackContext):
-    file = update.message.document or update.message.video or update.message.audio or update.message.photo[-1]
+    # چک کردن اینکه فایل از چه نوعی هست
+    if update.message.document:
+        file = update.message.document
+    elif update.message.video:
+        file = update.message.video
+    elif update.message.audio:
+        file = update.message.audio
+    elif update.message.photo:
+        file = update.message.photo[-1]  # آخرین عکس ارسال شده
+    else:
+        file = None
 
-    file_id = file.file_id
-    context.user_data['file_id'] = file_id
-    context.user_data['file_type'] = file.mime_type
-    await update.message.reply_text("فایل دریافت شد ✅ لطفاً اسم جدید فایل رو بفرست (بدون فرمت).")
+    if file:
+        print(f"Received file: {file.file_id}")
+        file_id = file.file_id
+        context.user_data['file_id'] = file_id
+        context.user_data['file_type'] = file.mime_type
+        await update.message.reply_text("فایل دریافت شد ✅ لطفاً اسم جدید فایل رو بفرست (بدون فرمت).")
+    else:
+        print("No file received.")
+        await update.message.reply_text("فایلی ارسال نکردید.")
 
 # گرفتن نام جدید و ارسال فایل
 async def handle_text(update: Update, context: CallbackContext):
